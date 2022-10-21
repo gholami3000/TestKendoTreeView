@@ -1,0 +1,66 @@
+﻿
+<div id="example">
+    <div id="orgchart"></div>
+
+
+    <script type="text/x-kendo-template" id="template">
+        <div class="text-cente bg-primary">
+ #=title# 
+    </div>
+</script>
+    <script>
+      
+
+           $(document).ready(function(){
+              
+          $("#orgchart").kendoOrgChart({
+            editable: false,           
+            template: kendo.template($("#template").html()),
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "/Location/GetChartData",
+                        dataType: "json"
+                    }                    
+                },            
+                schema: {
+                     data: "data",
+                    model: {
+                        id: "id",
+                        parentId: "parentId",
+                        expanded: false,
+                        fields: {
+                            id: { field: "id", type: "string", nullable: false },
+                            parentId: { field: "parentId", nullable: true },
+                            title: { field: "title", nullable: true },                           
+                        }
+                    }
+                }
+            }
+
+        });
+
+
+           });
+
+             function GetChartData() {
+
+                     $.ajax({
+                          url: "/Location/GetChartData",
+                          type: "get",
+                         beforeSend: function() {
+                         },
+                         success: function(response) {
+
+                              $("#orgchart").kendoOrgChart({
+                                dataSource: data
+                              });
+                         },
+                         error: function(err) {
+
+                         }
+                     });
+        }
+    </script>
+</div>
+

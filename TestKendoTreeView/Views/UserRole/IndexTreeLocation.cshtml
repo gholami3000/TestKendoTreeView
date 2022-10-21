@@ -1,0 +1,216 @@
+﻿@{
+    Layout = null;
+    var roleId = new Guid(ViewBag.roleId.ToString());
+
+}
+  <input id="searchInput" class="k-textbox" placeholder="جستجو ..." />
+
+<div id="treeview"></div>
+<div id="result"></div>
+
+
+<script>
+
+    $(document).ready(function() {
+        BindTree();
+    });
+
+    $("#expandBtn").kendoButton({ click: expandAll });
+    $("#collapseBtn").kendoButton({ click: collapseAll });
+    $("#SaveItems").kendoButton({ click: collapseAll });
+
+    var selectedItems;
+    var treeView;
+    var inlineDefault;
+    function BindTree() {
+        $.ajax({
+            url: "/UserRole/GetTreeLocationList?roleId=@roleId",
+            type: "get",
+            success: function(response) {
+                console.log(response);
+                var inlineDefault = new kendo.data.HierarchicalDataSource({
+                    data: response.data,
+                    schema: {
+                        model: {
+                            children: "items",
+                            id: "id",
+                        }
+                    },
+                });
+
+                $("#treeview").kendoTreeView({
+                    dataSource: inlineDefault,
+                    dataBound: function(e) {
+
+                    },
+                    dataTextField: "item.title",
+                   // dataValueField: "Item.LocationId",
+                    loadOnDemand: false,
+                    checkboxes: {
+                        checkChildren: true,
+                    },
+                    check: onCheck,
+                });
+                //SetCheck();
+                treeView = $("#treeview").data("kendoTreeView");
+            },
+        });
+    }
+
+    function SaveItems() {
+        console.log(selectedItems);
+        if (selectedItems !== null) {
+        var list = selectedItems.split(',');
+
+        }
+        console.log(list);
+        $.ajax({
+            url: "/UserRole/UpdateRoleClaim",
+            type: "post",
+            data: { claimList: list, roleId:'@roleId'},
+            beforeSend: function() {
+
+            },
+            success: function(response) {
+
+            },
+            error: function(xhr) {
+            }
+        });
+    }
+
+    function checkedNodeIds(nodes, checkedNodes) {
+        for (var i = 0; i < nodes.length; i++) {
+            if (nodes[i].checked) {
+                checkedNodes.push(nodes[i].id);
+            }
+
+            if (nodes[i].hasChildren) {
+                checkedNodeIds(nodes[i].children.view(), checkedNodes);
+            }
+        }
+    }
+
+
+    function onCheck() {
+        var checkedNodes = [];
+        treeView = $("#treeview").data("kendoTreeView");
+        checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+        if (checkedNodes.length > 0) {
+            selectedItems = checkedNodes.join(",");
+        } else {
+            selectedItems = null;
+        }
+    }
+
+
+
+    function expandAll(e) {
+        treeView.expand(".k-item");
+    }
+    function collapseAll(e) {
+        treeView.collapse(".k-item");
+    }
+
+
+
+      function CheckedBoxNodes(nodes, checkedNodes) {
+        for (var i = 0; i < nodes.length; i++) {
+            console.log(nodes[i].Item.IsChecked);
+            if (nodes[i].Item.IsChecked) {
+                checkedNodes.push(nodes[i].id);
+                nodes[i].set("checked",true);
+            }
+
+            if (nodes[i].hasChildren) {
+                CheckedBoxNodes(nodes[i].children.view(), checkedNodes);
+            }
+        }
+    }
+
+     function SetCheck() {
+        var checkedNodes = [];
+        treeView = $("#treeview").data("kendoTreeView");
+        CheckedBoxNodes(treeView.dataSource.view(), checkedNodes);
+        if (checkedNodes.length > 0) {
+            selectedItems = checkedNodes.join(",");
+        } else {
+            selectedItems = null;
+        }
+    }
+
+</script>
+
+<script>
+
+     $("#searchInput").on("input", function() {
+        console.log("s");
+      var query = this.value.toLowerCase();
+      var dataSource = $("#treeview").data("kendoTreeView").dataSource;
+
+      filter(dataSource, query);
+    });
+
+      // Sets the "hidden" field on items that match the query.
+    function filter(dataSource, query) {
+      var hasVisibleChildren = false;
+      var data = dataSource instanceof kendo.data.HierarchicalDataSource && dataSource.data();
+
+      for (var i = 0; i < data.length; i++) {
+        var item = data[i];
+        var text = item.item.title.toLowerCase();
+        var itemVisible =
+            query === true // parent already matches
+            || query === "" // query is empty
+            || text.indexOf(query) >= 0; // item text matches query
+
+        var anyVisibleChildren = filter(item.children, itemVisible || query); // pass true if parent matches
+        hasVisibleChildren = hasVisibleChildren || anyVisibleChildren || itemVisible;
+
+        item.hidden = !itemVisible && !anyVisibleChildren;
+      }
+
+      if (data) {
+        // Re-apply the filter on the children.
+        dataSource.filter({ field: "hidden", operator: "neq", value: true });
+      }
+
+      return hasVisibleChildren;
+    }
+</script>
+
+<style>
+    .k-checkbox.k-state-indeterminate, .k-checkbox:indeterminate {
+        color: #06c !important;
+    }
+
+    .k-checkbox:checked {
+        border-color: #06c !important;
+        color: #ffffff !important;
+        background-color: #06c !important;
+    }
+
+    #treeview .k-sprite {
+        background-image: url("../content/web/treeview/coloricons-sprite.png");
+    }
+
+    .rootfolder {
+        background-position: 0 0;
+    }
+
+    .folder {
+        background-position: 0 -16px;
+    }
+
+    .pdf {
+        background-position: 0 -32px;
+    }
+
+    .html {
+        background-position: 0 -48px;
+    }
+
+    .image {
+        background-position: 0 -64px;
+    }
+</style>

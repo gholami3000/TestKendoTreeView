@@ -1,0 +1,80 @@
+﻿<button onclick="GetData();"> GetData </button>
+<button onclick="SendNotificatio();"> SendNotificatio </button>
+
+<div id="A">
+</div>
+
+<div id="B">
+</div>
+<script>
+
+  async   function GetData(){
+         const r1=await A();
+         $("#A").html(r1);
+         const r2=await B();
+         $("#B").html(r2);
+     }
+
+     function A() {
+   
+          $("#A").html("");
+              return new Promise(function(resolve, reject) {
+                  $.ajax({
+                       url: "/Home/A",
+                       type: "get",
+                      //dataType: "json",
+                      beforeSend: function() {            
+                      },
+                      success: function(data) {
+                          resolve(data) // Resolve promise and when success
+                           //$("#A").html(response);
+                      },
+                      error: function(err) {
+                          reject(err) // Reject the promise and go to catch()
+                      }
+                  });
+          });
+     }
+
+          function B() {
+           
+              $("#B").html("");
+              return new Promise(function(resolve, reject) {
+                  $.ajax({
+                       url: "/Home/B",
+                       type: "get",
+                      //dataType: "json",
+                      beforeSend: function() {            
+                      },
+                      success: function(data) {
+                          resolve(data) // Resolve promise and when success
+                         //  $("#B").html(response);
+                      },
+                      error: function(err) {
+                          reject(err) // Reject the promise and go to catch()
+                      }
+                  });
+          });
+         }
+
+
+
+             function SendNotificatio() {
+   
+              return new Promise(function(resolve, reject) {
+                  $.ajax({
+                       url: "/Home/SendNotificatio",
+                       type: "get",
+                      //dataType: "json",
+                      beforeSend: function() {            
+                      },
+                      success: function(data) {
+                          resolve(data) // Resolve promise and when success
+                      },
+                      error: function(err) {
+                          reject(err) // Reject the promise and go to catch()
+                      }
+                  });
+          });
+     }
+</script>

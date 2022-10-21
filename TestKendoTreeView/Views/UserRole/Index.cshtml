@@ -1,0 +1,152 @@
+﻿@{
+
+}
+
+<script type="text/x-kendo-template" id="template">
+        <div class="toolbar">
+      @*  <a href="\\#" class="k-link k-button k-button-solid-base k-button-solid k-button-md k-rounded-md k-flat" onclick="">
+            <span class="fa fa-refresh"></span>
+            بروزرسانی
+        </a>*@
+    </div>
+</script>
+
+<script id="row-template" type="text/x-kendo-template">
+    <button class="btn btn-primary btn-sm"  onclick="IndexTreeLocation(this,'#=id#');return false;">  <i class="fa fa-key" aria-hidden="true"></i> </button>
+</script>
+
+
+<div id="RolGrid" class="k-rtl"></div>
+
+
+<div id="RolGridwindow"></div>
+
+<script>
+    $(document).ready(function() {
+        bindRolGrid();       
+    });
+   
+    var record = 0;
+    function bindRolGrid() {
+       // kendo.ui.progress($(formIdRolGrid), true);
+        $("#RolGrid").kendoGrid({
+            toolbar: [{ template: kendo.template($("#template").html()) }, "excel"],
+           // excel: { allPages: true },
+            //excelExport: ExportGridWithTemplatesContent,
+            dataSource:
+            {
+                type: "json",
+                transport:
+                {
+                    read:
+                    {
+                        url: "/UserRole/List",
+                        type: "post",
+                        dataType: "json",
+                        contentType: "application/json",
+                    },
+                    parameterMap: function(data, operation) {
+                        {
+                            if (operation != "read") {
+                                return data;
+                            }
+                            else {
+
+                                return JSON.stringify(data);
+                            }
+                        }
+                    }
+                },
+                schema:
+                {
+                    data: "data",
+                    //total: "Total",
+                    errors: "Errors",
+                    model: {
+                        fields: {
+                            Id: { type: "string" },
+                           
+                        }
+                    }
+                },
+                requestEnd: function(e) {
+                    if (e.type == "create" || e.type == "update") {
+                        this.read();
+                    }
+                   // kendo.ui.progress($(formIdRolGrid), false);
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    this.cancelChanges();
+                },
+                pageSize: 10,
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true,
+                sort:
+                {
+                    field: "id",
+                    dir: "asc"
+                }
+            },
+            pageable:
+            {
+                pageSizes: [10, 25, 50, 75, 100],
+                refresh: true,
+                input: true
+            },
+            dataBinding: function() {
+                record = (this.dataSource.page() - 1) * this.dataSource.pageSize();
+            },
+            sortable:
+            {
+                mode: "multiple",
+                allowUnsort: true
+            },
+            editable: false,
+            filterable: true,
+            scrollable: true,
+            columns: [
+                { title: "#", template: "#= ++record #", width: 20 },
+                {
+                        field: "عملیات",
+                        sortable: false,
+                        filterable: false,
+                        title: "",
+                        width: 50,
+                        template: kendo.template($("#row-template").html())
+                    },
+               
+                { field: "roleName", title: "نام نقش", width: 390 }
+                
+                
+            ]
+        })
+            .find("table").addClass("table table-bordered table-hover");
+    }
+    function RefreshRolGrid() {
+        var grid = $("#RolGrid").data("kendoGrid");
+        grid.dataSource.read();
+    }
+
+        
+
+           function IndexTreeLocation(e,id) {
+                $.ajax({
+                    url: `/UserRole/IndexTreeLocation?roleId=${id}`,
+                    type: "get",
+                    success: function(response) {
+                         ShowInWindow("RolGridwindow",response,"ایجاد دسترسی",OnClose);
+                        //$("#window").html(response);
+
+                    },
+                });
+            }
+
+             function OnClose(){
+                    // RefreshLocationGrid();
+                    // DestroyKendoDropDownTree("categoryId");
+                 }
+
+</script>
+

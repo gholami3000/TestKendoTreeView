@@ -1,0 +1,200 @@
+﻿
+
+    <script type="text/x-kendo-template" id="template">
+        <div class="toolbar">
+            <a href="\\#" class="btn btn-primary btn-sm" onclick="ShowCreateForm(this)">
+                <i class="fa fa-plus"></i>
+                افزودن
+            </a>
+        </div>
+    </script>
+
+    <script id="row-template" type="text/x-kendo-template">
+        <button class="btn btn-primary btn-sm"  onclick="ShowCreateChildForm(this,'#=id#');return false;"> <i class="fa fa-plus"></i>   </button>
+        <button class="btn btn-success btn-sm "  onclick="ShowEditForm(this,'#=id#');return false;"> <i class="fa fa-edit"></i>  </button>
+        <button class="btn btn-danger btn-sm"  onclick="confirmDelete(this,'#=id#');">  <i class="fa fa-remove"></i> </button>
+    </script>
+
+    
+    <script id="title-template" type="text/x-kendo-template">
+      
+        #if(isSubLocation){#
+               <span style="color: \\#8daf8d;"> #=title#  </span>
+        #}else{#
+             <span> #=title#  </span>
+            #}#       
+    </script>
+
+    <div id="window"></div>
+
+    <div id="LocationGrid" class="k-rtl">
+    </div>
+
+
+
+<script>
+    $(document).ready(function() {
+        bindLocationGrid();
+    });
+
+    var record = 0;
+    function bindLocationGrid() {
+
+        var dataSource = {
+            serverPaging: true,
+            serverSorting: true,
+            serverFiltering: true,
+            pageSize: 100,
+            type: "json",
+            transport:
+            {
+                read:
+                {
+                    url: "/Location/List",
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json",
+                },
+                parameterMap: function(data, operation) {
+                    {
+                        if (operation != "read") {
+                            return data;
+                        }
+                        else {
+                            console.log(data);
+                            return JSON.stringify(data);
+                        }
+                    }
+                }
+            },
+            schema: {
+                data: "data",
+                //total: "Total",
+                model: {
+                    id: "id",
+                    parentId: "parentId",
+                    fields: {
+                        id: { type: "string", nullable: false },
+                        parentId: { field: "parentId", nullable: true },
+                        isSubLocation: { field: "isSubLocation",type:"boolean"}
+                    },
+                    expanded: false
+                }
+            }
+        };
+
+        $('#LocationGrid').kendoTreeList({
+            toolbar: kendo.template($("#template").html()),
+            dataSource: dataSource,
+            dataBinding: function() {
+                record = (this.dataSource.page() - 1) * this.dataSource.pageSize();
+            },
+            height: 700,
+            columns: [
+                {
+                //field: 'title',
+                template: kendo.template($("#title-template").html()),
+                expandable: true,
+                title: 'عنوان محل', 
+                width: 400 
+                },
+                //{ field: 'LocationCategoryTitle', title: 'نوع محل', width: 200 },
+                {
+                    field: "عملیات",
+                    sortable: false,
+                    filterable: false,
+                    title: "",
+                    template: kendo.template($("#row-template").html())
+                }
+            ],
+            filterable: true,
+            sortable: true,
+            pageable: true
+        });
+    }
+    function RefreshLocationGrid() {
+        $("#LocationGrid").data("kendoTreeList").dataSource.read();
+    }
+
+    function AddItemToUi(model) {
+        $("#LocationGrid").data("kendoTreeList").dataSource.insert(1, {
+            "parentId": model.parentId,
+            "id": model.id,
+            "title": model.title,
+            //"LocationCategoryTitle": model.LocationCategoryTitle,
+        });
+    }
+
+    function RemoveItemInUi(id) {
+        var data=$("#LocationGrid").data("kendoTreeList").dataSource.data();
+        var length = data.length;
+        var item, i;
+        for (i = length - 1; i >= 0; i--) {
+            item = data[i];
+            if (item.id.toString() === id) {
+                $("#LocationGrid").data("kendoTreeList").dataSource.remove(item);
+            }
+        }
+    }
+          function ShowCreateForm() {
+                $.ajax({
+                    url: "/Location/Create",
+                    type: "get",
+                    success: function(response) {
+                         ShowInWindow("window",response,"ایجاد",OnClose);
+                        //$("#window").html(response);
+
+                    },
+                });
+            }
+
+            function ShowCreateChildForm(e,id) {
+                $.ajax({
+                    data:{id:id},
+                    url: "/Location/CreateChild",
+                    type: "get",
+                    success: function(response) {
+                         ShowInWindow("window",response,"ایجاد",OnClose);
+
+                        //$("#window").html(response);
+
+                    },
+                });
+            } 
+
+          
+            
+            function ShowEditForm(e,id) {
+                $.ajax({
+                    data:{id:id},
+                    url: "/Location/Edit",
+                    type: "get",
+                    success: function(response) {
+                         ShowInWindow("window",response,"ویرایش",OnClose);
+
+                        //$("#window").html(response);
+
+                    },
+                });
+            }
+
+            function confirmDelete(e,id) {
+                $.ajax({
+                    data:{id:id},
+                    url: "/Location/DeleteConfirm",
+                    type: "get",
+                    success: function(response) {
+                        RemoveItemInUi(id);
+                       // $("#window").html(response);
+
+                    },
+                });
+            }
+
+                function OnClose(){
+                    // RefreshLocationGrid();
+                    // DestroyKendoDropDownTree("categoryId");
+                 }
+
+</script>
+

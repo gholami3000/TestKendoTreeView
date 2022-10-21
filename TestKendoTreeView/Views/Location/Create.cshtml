@@ -1,0 +1,48 @@
+﻿@using TestTree2
+@{
+    Layout = null;
+}
+
+@model Location
+
+<form method="post" id="Create_Location_Form" asp-action="Create" style="margin-left: 4%;">
+    <div asp-validation-summary="All"></div>
+    <div class="">
+        <div class="form-group col-md-12">
+            <label asp-for="Title"></label>
+            <input type="text" class="form-control mb-3" asp-for="Title" placeholder="">
+            <span asp-validation-for="Title" class=" alert-danger"></span>
+        </div>
+    </div>
+   
+    <div class="form-group col-md-12 mb-3 text-left">
+        <button type="button" id="btnCancel" class="btn btn-default">
+            <span class="btn-label"><i class="fas fa-times fa-lg pl-1"></i></span>انصراف
+        </button>
+        <button type="button" id="btnCreate" onclick="Save();" class="btn btn-primary" data-loading-text="<span class='btn-label'><i class='fas fa-spinner fa-spin fa-lg'></i></span> در حال ارسال...">
+            <span class="btn-label"><i class="fas fa-save fa-lg pl-1"></i></span>ذخیره
+        </button>
+    </div>
+</form>
+<script>
+   
+     function Save() {
+                $.ajax({
+                    url: "/Location/Create",
+                    type: "post",
+                    data:$("#Create_Location_Form").serialize(),
+                    success: function(response) {
+                        //(response.success);
+                          var title = $("#Title").val();
+                         var model = {
+                            "parentId": response.data.parentId,
+                            "id": response.data.id,
+                            "title": title,
+                            //"LocationCategoryTitle": LocationCategoryTitle,
+                        };
+                        AddItemToUi(model);
+                    },
+                });
+            }
+    
+</script>
