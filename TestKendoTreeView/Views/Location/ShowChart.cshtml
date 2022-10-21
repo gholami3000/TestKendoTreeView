@@ -2,27 +2,29 @@
 <div id="example">
     <div id="orgchart"></div>
 
-
     <script type="text/x-kendo-template" id="template">
-        <div class="text-cente bg-primary">
- #=title# 
-    </div>
-</script>
+               <div class="text-cente">
+                            <button class="btn btn-primary" onclick="alert('WoW!')" > click </button>
+
+        #=title#
+
+           </div>
+    </script>
     <script>
-      
+
 
            $(document).ready(function(){
-              
+
           $("#orgchart").kendoOrgChart({
-            editable: false,           
+            editable: false,
             template: kendo.template($("#template").html()),
             dataSource: {
                 transport: {
                     read: {
                         url: "/Location/GetChartData",
                         dataType: "json"
-                    }                    
-                },            
+                    }
+                },
                 schema: {
                      data: "data",
                     model: {
@@ -32,7 +34,7 @@
                         fields: {
                             id: { field: "id", type: "string", nullable: false },
                             parentId: { field: "parentId", nullable: true },
-                            title: { field: "title", nullable: true },                           
+                            title: { field: "title", nullable: true },
                         }
                     }
                 }
