@@ -24,20 +24,30 @@ namespace TestKendoTreeView.Controllers
 
         public async Task<IActionResult> SendNotificatio()
         {
-            await _mediator.Publish(new NotificationModel { Message = "Ho" }) ;
+            await _mediator.Publish(new NotificationModel { Message = "Ho" });
             return Json("ok");
         }
 
         public IActionResult A()
         {
-            Thread.Sleep(5000);
-            return Json("A");
+            var list = new List<string> {
+            "56000",
+            "63000",
+            "74000"
+            };
+            //Thread.Sleep(5000);
+            return Json(list);
         }
 
         public IActionResult B()
         {
-            Thread.Sleep(2000);
-            return Json("B");
+            var list = new List<string> {
+            "100000",
+            "34000",
+            "23000"
+            };
+            //Thread.Sleep(5000);
+            return Json(list);
         }
 
     }
