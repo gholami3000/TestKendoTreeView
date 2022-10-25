@@ -1,0 +1,61 @@
+﻿
+
+<form id="frmAddAttachment">
+
+    @Html.AntiForgeryToken()
+
+    <div hidden id="errorContaainer" class="alert alert-danger" role="alert">
+    </div>
+
+    @*<div> آیتم انتخابی شما <strong> @Model.Product.Name </strong> </div>*@
+    <br />
+    @*<input hidden asp-for="AttachmentKey" class="form-control">*@
+    <div class="row mb-3">
+        <label for="file" class="col-form-label col-sm-10">  انتخاب فایل  </label>
+        <div class="col-10">
+            <input class="form-control" type="file" multiple id="attachmentFile">
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-10">
+            <button type="button" class="btn btn-primary" onclick="SaveAttachments();">ذخیره</button>
+        </div>
+    </div>
+
+</form>
+
+<script>
+   
+    function SaveAttachments() {
+
+        var data = new FormData();
+        $.each(jQuery('#attachmentFile')[0].files, function (i, file) {
+            data.append('file-' + i, file);
+        });
+
+        $.ajax({
+            url: "/Attachment/SaveFile",
+            data: data,
+            cache: false,
+            contentType: false,
+            processData: false,
+            method: 'post',
+            //type: 'POST', // For jQuery < 1.9
+            beforeSend: function () {
+              //  ShowLoading();
+            },
+            success: function (data) {
+                //HideLoading();
+               // GetImageList(id);
+                //CloseWindowByID("EditDiv");
+                //alert(data.message);
+            },
+            error: function (xhr) {
+
+            }
+        });
+
+    }
+</script>
+
