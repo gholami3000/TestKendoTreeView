@@ -1,15 +1,25 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ResponsibleChains;
 using System.Reflection;
 using TestKendoTreeView.Controllers;
 using TestKendoTreeView.Models;
+using TestKendoTreeView.Models.validator;
 using TestKendoTreeView.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//builder.Services.AddResponsibleChain<ITransactionValidatorChain>()
+//             .WithLink<CheckFreeSpaceInSourceValidator1>()
+//             .WithLink<CheckFreeSpaceInDestinationValidator1>();
+builder.Services.AddTransient<MyServices>();
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<CacheService>();
+
+
+
 
 builder.Services.AddMediatR(typeof(NotificationHandler),typeof(NotificationHandler1));
 //builder.Services.AddMediatR(Assembly.GetExecutingAssembly(), typeof(NotificationHandler).Assembly);
